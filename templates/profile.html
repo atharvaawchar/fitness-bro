@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block title %}User Profile{% endblock %}
+{% block header_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="profile-container fade-in">
+
+  <div class="profile-layout">
+    <!-- Profile Card -->
+    <div class="profile-card">
+      <div class="profile-avatar-section">
+        <div class="profile-avatar">💪</div>
+        <div class="profile-name" id="profileNameDisplay">Loading...</div>
+        <div class="profile-level" id="profileLevelDisplay">—</div>
+        <div class="profile-goal-badge" id="profileGoalDisplay">—</div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="profile-stats">
+        <div class="profile-stat">
+          <div class="profile-stat-val" id="ps-bmi">—</div>
+          <div class="profile-stat-label">BMI</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-val" id="ps-streak">—</div>
+          <div class="profile-stat-label">Streak</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-val" id="ps-workouts">—</div>
+          <div class="profile-stat-label">Workouts</div>
+        </div>
+      </div>
+
+      <a href="/progress" class="btn btn-outline-primary w-100 mt-3">
+        <i class="bi bi-bar-chart-line"></i> View Full Progress
+      </a>
+    </div>
+
+    <!-- Profile Edit Form -->
+    <div class="profile-form-section">
+      <div class="panel-header">
+        <h2><i class="bi bi-person-gear"></i> Edit Profile</h2>
+        <p>Keep your profile updated for accurate AI recommendations.</p>
+      </div>
+
+      <form id="profileForm" class="fitness-form">
+
+        <div class="form-group">
+          <label class="form-label"><i class="bi bi-person"></i> Full Name</label>
+          <input type="text" class="form-control" id="pName" placeholder="Your name" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><i class="bi bi-calendar"></i> Age</label>
+            <input type="number" class="form-control" id="pAge" min="10" max="90" />
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="bi bi-gender-ambiguous"></i> Gender</label>
+            <select class="form-select" id="pGender">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="prefer_not_to_say">Prefer not to say</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><i class="bi bi-rulers"></i> Height (cm)</label>
+            <input type="number" class="form-control" id="pHeight" min="100" max="250" />
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="bi bi-speedometer2"></i> Weight (kg)</label>
+            <input type="number" class="form-control" id="pWeight" min="30" max="300" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label"><i class="bi bi-bar-chart"></i> Fitness Level</label>
+          <select class="form-select" id="pLevel">
+            <option value="beginner">🌱 Beginner</option>
+            <option value="intermediate">⚡ Intermediate</option>
+            <option value="advanced">🔥 Advanced</option>
+            <option value="athlete">🏆 Athlete</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label"><i class="bi bi-bullseye"></i> Primary Fitness Goal</label>
+          <select class="form-select" id="pGoal">
+            <option value="weight_loss">🔥 Weight Loss</option>
+            <option value="muscle_building">💪 Muscle Building</option>
+            <option value="general_fitness">⚡ General Fitness</option>
+            <option value="endurance">🏃 Endurance</option>
+            <option value="strength">🏋️ Strength Training</option>
+            <option value="flexibility">🧘 Flexibility</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label"><i class="bi bi-tools"></i> Equipment Available</label>
+          <select class="form-select" id="pEquipment">
+            <option value="none">No Equipment (Bodyweight Only)</option>
+            <option value="dumbbells">Dumbbells Only</option>
+            <option value="resistance_bands">Resistance Bands</option>
+            <option value="full_gym">Full Gym Access</option>
+            <option value="home_gym">Home Gym Setup</option>
+          </select>
+        </div>
+
+        <div id="profileAlert" style="display:none"></div>
+
+        <button type="submit" class="btn btn-primary w-100 btn-generate">
+          <i class="bi bi-check2-circle"></i> Save Profile
+        </button>
+      </form>
+
+      <!-- Calculated BMI Preview -->
+      <div class="bmi-preview-card" id="bmiPreview" style="display:none">
+        <div class="bmi-preview-label">Your Current BMI</div>
+        <div class="bmi-preview-value" id="bmiPreviewVal">—</div>
+        <div class="bmi-preview-cat"  id="bmiPreviewCat">—</div>
+        <a href="/bmi" class="btn btn-sm btn-outline-success mt-2">
+          <i class="bi bi-calculator"></i> Full Analysis
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load profile
+fetch("/api/profile").then(r=>r.json()).then(p=>{
+  document.getElementById("pName").value      = p.name || "";
+  document.getElementById("pAge").value       = p.age  || "";
+  document.getElementById("pGender").value    = p.gender || "prefer_not_to_say";
+  document.getElementById("pHeight").value    = p.height_cm || "";
+  document.getElementById("pWeight").value    = p.weight_kg || "";
+  document.getElementById("pLevel").value     = p.fitness_level  || "beginner";
+  document.getElementById("pGoal").value      = p.fitness_goal   || "general_fitness";
+  document.getElementById("pEquipment").value = p.equipment      || "none";
+
+  document.getElementById("profileNameDisplay").textContent  = p.name || "Fitness Bro";
+  document.getElementById("profileLevelDisplay").textContent = capitalize(p.fitness_level) + " Level";
+  document.getElementById("profileGoalDisplay").textContent  = formatGoal(p.fitness_goal);
+
+  // Calculate BMI preview
+  if(p.height_cm && p.weight_kg){
+    const h = p.height_cm/100, w = p.weight_kg;
+    const bmi = (w/(h*h)).toFixed(1);
+    const cat = bmi<18.5?"Underweight":bmi<25?"Normal Weight":bmi<30?"Overweight":"Obese";
+    document.getElementById("bmiPreviewVal").textContent = bmi;
+    document.getElementById("bmiPreviewCat").textContent = cat;
+    document.getElementById("bmiPreview").style.display = "block";
+    document.getElementById("ps-bmi").textContent = bmi;
+  }
+});
+
+// Load progress stats
+fetch("/api/progress").then(r=>r.json()).then(d=>{
+  document.getElementById("ps-streak").textContent   = d.current_streak || 0;
+  document.getElementById("ps-workouts").textContent = d.total_workouts_completed || 0;
+});
+
+document.getElementById("profileForm").addEventListener("submit", async(e)=>{
+  e.preventDefault();
+  const payload = {
+    name:          document.getElementById("pName").value,
+    age:           parseInt(document.getElementById("pAge").value)||25,
+    gender:        document.getElementById("pGender").value,
+    height_cm:     parseFloat(document.getElementById("pHeight").value)||170,
+    weight_kg:     parseFloat(document.getElementById("pWeight").value)||70,
+    fitness_level: document.getElementById("pLevel").value,
+    fitness_goal:  document.getElementById("pGoal").value,
+    equipment:     document.getElementById("pEquipment").value
+  };
+
+  const res  = await fetch("/api/profile",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+  const data = await res.json();
+  const alertEl = document.getElementById("profileAlert");
+  alertEl.style.display = "block";
+  if(data.success){
+    alertEl.className = "alert alert-success";
+    alertEl.innerHTML = "<i class='bi bi-check-circle'></i> " + data.message;
+    document.getElementById("profileNameDisplay").textContent  = payload.name;
+    document.getElementById("profileLevelDisplay").textContent = capitalize(payload.fitness_level) + " Level";
+    document.getElementById("profileGoalDisplay").textContent  = formatGoal(payload.fitness_goal);
+  } else {
+    alertEl.className = "alert alert-danger";
+    alertEl.textContent = "Update failed. Please try again.";
+  }
+  setTimeout(()=>{ alertEl.style.display="none"; }, 4000);
+});
+
+function capitalize(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g," ") : ""; }
+function formatGoal(g){
+  const map = { weight_loss:"🔥 Weight Loss", muscle_building:"💪 Muscle Building",
+                general_fitness:"⚡ General Fitness", endurance:"🏃 Endurance",
+                strength:"🏋️ Strength", flexibility:"🧘 Flexibility" };
+  return map[g] || g;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}Meal Planner{% endblock %}
+{% block header_title %}AI Meal Planner{% endblock %}
+{% block header_sub %}Nutrition plans designed for your fitness goals{% endblock %}
+
+{% block content %}
+<div class="planner-container fade-in">
+
+  <!-- ── Hero Banner ── -->
+  <div class="page-hero-banner" style="background-image:url('https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=1400&q=80&auto=format&fit=crop')">
+    <div class="phb-overlay"></div>
+    <div class="phb-content">
+      <div class="phb-badge"><i class="bi bi-egg-fried"></i> AI Nutrition Planner</div>
+      <h2 class="phb-title">Eat Smart. Train Hard.</h2>
+      <p class="phb-desc">Get a complete daily meal plan crafted by IBM Granite AI — balanced, delicious, and goal-focused.</p>
+    </div>
+  </div>
+
+  <!-- ── Food Image Strip ── -->
+  <div class="ex-strip">
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1494390248081-4e521a5940db?w=300&q=80&auto=format&fit=crop" alt="Oatmeal"/><span>Oatmeal</span></div>
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1546793665-c74683f339c1?w=300&q=80&auto=format&fit=crop" alt="Salad"/><span>Salad</span></div>
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=300&q=80&auto=format&fit=crop" alt="Chicken"/><span>Chicken</span></div>
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=300&q=80&auto=format&fit=crop" alt="Salmon"/><span>Salmon</span></div>
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&q=80&auto=format&fit=crop" alt="Veggies"/><span>Veggies</span></div>
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1622597467836-f3e72fe55e9e?w=300&q=80&auto=format&fit=crop" alt="Eggs"/><span>Eggs</span></div>
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1495214783159-3503fd1b572d?w=300&q=80&auto=format&fit=crop" alt="Smoothie"/><span>Smoothie</span></div>
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=300&q=80&auto=format&fit=crop" alt="Nuts"/><span>Nuts</span></div>
+  </div>
+
+  <div class="planner-layout">
+    <!-- ── Form Panel ── -->
+    <div class="form-panel">
+      <div class="panel-header">
+        <h2><i class="bi bi-sliders" style="color:var(--teal)"></i> Your Preferences</h2>
+        <p>Set your nutrition goals and get a personalized meal plan.</p>
+      </div>
+
+      <form id="mealForm" class="fitness-form">
+        <div class="form-group">
+          <label class="form-label">Fitness Goal</label>
+          <select class="form-select" id="mealGoal">
+            <option value="weight_loss">🔥 Weight Loss</option>
+            <option value="muscle_building">💪 Muscle Building</option>
+            <option value="general_fitness" selected>⚡ Maintain &amp; Stay Healthy</option>
+            <option value="endurance">🏃 Endurance Performance</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Daily Calories: <span id="calorieLabel" style="color:var(--accent)">2000 kcal</span></label>
+          <input type="range" class="form-range" id="calories" min="1200" max="4000" value="2000" step="100"/>
+          <div class="range-labels"><span>1200</span><span>2000</span><span>3000</span><span>4000</span></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Diet Type</label>
+          <select class="form-select" id="dietType">
+            <option value="balanced" selected>🍽️ Balanced</option>
+            <option value="vegetarian">🥦 Vegetarian</option>
+            <option value="vegan">🌱 Vegan</option>
+            <option value="high_protein">💪 High Protein</option>
+            <option value="low_carb">⚡ Low Carb / Keto</option>
+            <option value="mediterranean">🫒 Mediterranean</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Allergies / Restrictions</label>
+          <input type="text" class="form-control" id="allergies" placeholder="e.g. nuts, dairy (or none)" value="none"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Meals Per Day</label>
+          <div class="meal-count-selector">
+            <button type="button" class="meal-count-btn active" data-count="3">3 Meals</button>
+            <button type="button" class="meal-count-btn" data-count="4">4 Meals</button>
+            <button type="button" class="meal-count-btn" data-count="5">5 Meals</button>
+            <button type="button" class="meal-count-btn" data-count="6">6 Meals</button>
+          </div>
+          <input type="hidden" id="mealsPerDay" value="3"/>
+        </div>
+
+        <button type="submit" class="btn-generate" style="box-shadow:0 0 20px rgba(20,184,166,.3)">
+          <i class="bi bi-magic"></i> Generate Meal Plan
+        </button>
+      </form>
+    </div>
+
+    <!-- ── Result Panel ── -->
+    <div class="result-panel">
+      <div class="result-placeholder" id="mealPlaceholder">
+        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=70&auto=format&fit=crop"
+          style="width:100%;height:200px;object-fit:cover;border-radius:12px;margin-bottom:20px;opacity:.6" alt="Healthy food"/>
+        <h3>Your Nutrition Plan Awaits!</h3>
+        <p>Configure your preferences and generate a personalized meal plan powered by IBM Granite AI.</p>
+        <div class="feature-chips">
+          <span class="chip">🌅 Breakfast</span>
+          <span class="chip">☀️ Lunch</span>
+          <span class="chip">🌙 Dinner</span>
+          <span class="chip">🍎 Snacks</span>
+          <span class="chip">💧 Hydration</span>
+        </div>
+      </div>
+
+      <div class="result-content" id="mealContent" style="display:none">
+        <div class="result-header">
+          <div class="result-title"><i class="bi bi-egg-fried" style="color:var(--teal)"></i> Your Meal Plan</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-sm btn-outline-primary" id="regenerateMealBtn"><i class="bi bi-arrow-clockwise"></i> Regenerate</button>
+            <button class="btn btn-sm btn-outline-info" id="downloadMealBtn" title="Download Plan"><i class="bi bi-download"></i> Download</button>
+          </div>
+        </div>
+        <div class="result-body" id="mealBody"></div>
+        <div class="result-footer"><span class="powered-tag">🧠 IBM Granite AI</span></div>
+      </div>
+
+      <div class="loading-state" id="mealLoading" style="display:none">
+        <div class="loading-animation">
+          <div class="loading-dumbbell">🥗</div>
+          <div class="loading-text"><h3>Crafting Your Plan...</h3><p>IBM Granite AI is designing your nutrition</p></div>
+          <div class="loading-bar"><div class="loading-fill"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Meal Image Gallery ── -->
+  <div class="ex-gallery-section fade-in-up">
+    <div class="section-header"><div class="section-title"><i class="bi bi-images" style="color:var(--teal)"></i> Healthy Food Ideas</div></div>
+    <div class="ex-gallery">
+      <div class="ex-gal-card"><img src="https://images.unsplash.com/photo-1494390248081-4e521a5940db?w=400&q=80&auto=format&fit=crop" alt="Oatmeal"/><div class="ex-gal-info"><div class="ex-gal-name">Power Oatmeal</div><div class="ex-gal-tags"><span>~380 kcal</span><span>Breakfast</span></div></div></div>
+      <div class="ex-gal-card"><img src="https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400&q=80&auto=format&fit=crop" alt="Salad"/><div class="ex-gal-info"><div class="ex-gal-name">Lean Salad</div><div class="ex-gal-tags"><span>~250 kcal</span><span>Low Carb</span></div></div></div>
+      <div class="ex-gal-card"><img src="https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=400&q=80&auto=format&fit=crop" alt="Chicken"/><div class="ex-gal-info"><div class="ex-gal-name">Grilled Chicken</div><div class="ex-gal-tags"><span>~480 kcal</span><span>High Protein</span></div></div></div>
+      <div class="ex-gal-card"><img src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80&auto=format&fit=crop" alt="Salmon"/><div class="ex-gal-info"><div class="ex-gal-name">Baked Salmon</div><div class="ex-gal-tags"><span>~520 kcal</span><span>Omega-3</span></div></div></div>
+      <div class="ex-gal-card"><img src="https://images.unsplash.com/photo-1495214783159-3503fd1b572d?w=400&q=80&auto=format&fit=crop" alt="Smoothie"/><div class="ex-gal-info"><div class="ex-gal-name">Protein Smoothie</div><div class="ex-gal-tags"><span>~290 kcal</span><span>Post Workout</span></div></div></div>
+      <div class="ex-gal-card"><img src="https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=400&q=80&auto=format&fit=crop" alt="Nuts"/><div class="ex-gal-info"><div class="ex-gal-name">Mixed Nuts</div><div class="ex-gal-tags"><span>~170 kcal</span><span>Healthy Fat</span></div></div></div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById("calories").addEventListener("input",function(){ document.getElementById("calorieLabel").textContent=this.value+" kcal"; });
+let mealCount=3;
+document.querySelectorAll(".meal-count-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".meal-count-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    mealCount=parseInt(btn.dataset.count);
+    document.getElementById("mealsPerDay").value=mealCount;
+  });
+});
+let lastMealParams=null;
+document.getElementById("mealForm").addEventListener("submit",async(e)=>{
+  e.preventDefault();
+  lastMealParams={goal:document.getElementById("mealGoal").value,calories:parseInt(document.getElementById("calories").value),diet_type:document.getElementById("dietType").value,allergies:document.getElementById("allergies").value||"none",meals_per_day:mealCount};
+  await generateMeal(lastMealParams);
+});
+document.getElementById("regenerateMealBtn").addEventListener("click",async()=>{ if(lastMealParams) await generateMeal(lastMealParams); });
+
+// ── Download Meal Plan ──
+document.getElementById("downloadMealBtn").addEventListener("click",()=>{
+  const content = document.getElementById("mealBody").innerText;
+  if(!content.trim()){ showToast("Generate a meal plan first!","info"); return; }
+  const date = new Date().toLocaleDateString("en-GB").replace(/\//g,"-");
+  const goal = document.getElementById("mealGoal")?.value || "fitness";
+  const cal  = document.getElementById("calories")?.value || "2000";
+  const header = `FITNESS BRO — AI MEAL PLAN\nGenerated: ${new Date().toLocaleString()}\nGoal: ${goal.replace(/_/g," ").toUpperCase()} | Calories: ${cal} kcal\n${"=".repeat(50)}\n\n`;
+  downloadTxt(header + content, `meal-plan-${date}.txt`);
+  showToast("Meal plan downloaded! 🥗","success");
+});
+async function generateMeal(params){
+  document.getElementById("mealPlaceholder").style.display="none";
+  document.getElementById("mealContent").style.display="none";
+  document.getElementById("mealLoading").style.display="flex";
+  try{
+    const res=await fetch("/api/meal/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(params)});
+    const data=await res.json();
+    document.getElementById("mealLoading").style.display="none";
+    document.getElementById("mealContent").style.display="block";
+    document.getElementById("mealBody").innerHTML=typeof marked!=="undefined"?marked.parse(data.meal_plan):data.meal_plan.replace(/\n/g,"<br>");
+  }catch(e){
+    document.getElementById("mealLoading").style.display="none";
+    document.getElementById("mealContent").style.display="block";
+    document.getElementById("mealBody").innerHTML="<p class='text-danger'>⚠️ Failed. Try again.</p>";
+  }
+}
+</script>
+{% endblock %}

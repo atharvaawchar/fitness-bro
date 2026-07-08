@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% block title %}Workout Planner{% endblock %}
+{% block header_title %}AI Workout Planner{% endblock %}
+{% block header_sub %}Get a personalized plan built for your goals{% endblock %}
+
+{% block content %}
+<div class="planner-container fade-in">
+
+  <!-- ── Hero Banner ── -->
+  <div class="page-hero-banner" style="background-image:url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1400&q=80&auto=format&fit=crop')">
+    <div class="phb-overlay"></div>
+    <div class="phb-content">
+      <div class="phb-badge"><i class="bi bi-lightning-charge-fill"></i> AI Workout Generator</div>
+      <h2 class="phb-title">Build Your Perfect Workout</h2>
+      <p class="phb-desc">Fill in your details below and IBM Granite AI will craft a workout tailored just for you.</p>
+    </div>
+  </div>
+
+  <!-- ── Exercise Showcase Strip ── -->
+  <div class="ex-strip">
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?w=300&q=80&auto=format&fit=crop" alt="Push-ups"/><span>Push-ups</span></div>
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=300&q=80&auto=format&fit=crop" alt="Squats"/><span>Squats</span></div>
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=300&q=80&auto=format&fit=crop" alt="Deadlift"/><span>Deadlift</span></div>
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1566241440091-ec10de8db2e1?w=300&q=80&auto=format&fit=crop" alt="Plank"/><span>Plank</span></div>
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=300&q=80&auto=format&fit=crop" alt="Pull-ups"/><span>Pull-ups</span></div>
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1550259979-ed79b48d2a30?w=300&q=80&auto=format&fit=crop" alt="Dumbbell"/><span>Dumbbells</span></div>
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=300&q=80&auto=format&fit=crop" alt="Bench Press"/><span>Bench Press</span></div>
+    <div class="ex-strip-card"><img src="https://images.unsplash.com/photo-1471506480208-91b3a4cc78be?w=300&q=80&auto=format&fit=crop" alt="Running"/><span>Running</span></div>
+  </div>
+
+  <div class="planner-layout">
+    <!-- ── Form Panel ── -->
+    <div class="form-panel">
+      <div class="panel-header">
+        <h2><i class="bi bi-sliders" style="color:var(--orange)"></i> Your Details</h2>
+        <p>The more accurate you are, the better your plan.</p>
+      </div>
+
+      <form id="workoutForm" class="fitness-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Age</label>
+            <input type="number" class="form-control" id="age" min="10" max="90" value="25" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Gender</label>
+            <select class="form-select" id="gender">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="prefer_not_to_say">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Height (cm)</label>
+            <input type="number" class="form-control" id="height" value="170" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Weight (kg)</label>
+            <input type="number" class="form-control" id="weight" value="70" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Fitness Goal</label>
+          <select class="form-select" id="goal">
+            <option value="weight_loss">🔥 Weight Loss</option>
+            <option value="muscle_building">💪 Muscle Building</option>
+            <option value="general_fitness" selected>⚡ General Fitness</option>
+            <option value="endurance">🏃 Endurance</option>
+            <option value="strength">🏋️ Strength Training</option>
+            <option value="flexibility">🧘 Flexibility</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Fitness Level</label>
+          <div class="level-selector">
+            <label class="level-option"><input type="radio" name="level" value="beginner" checked/><span class="level-btn">🌱 Beginner</span></label>
+            <label class="level-option"><input type="radio" name="level" value="intermediate"/><span class="level-btn">⚡ Intermediate</span></label>
+            <label class="level-option"><input type="radio" name="level" value="advanced"/><span class="level-btn">🔥 Advanced</span></label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Time Available: <span id="timeLabel" style="color:var(--accent)">45 min</span></label>
+          <input type="range" class="form-range" id="timeAvailable" min="15" max="120" value="45" step="15"/>
+          <div class="range-labels"><span>15m</span><span>45m</span><span>90m</span><span>120m</span></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Equipment</label>
+          <select class="form-select" id="equipment">
+            <option value="none">No Equipment (Bodyweight)</option>
+            <option value="dumbbells">Dumbbells Only</option>
+            <option value="resistance_bands">Resistance Bands</option>
+            <option value="full_gym">Full Gym Access</option>
+            <option value="home_gym">Home Gym Setup</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-generate">
+          <i class="bi bi-magic"></i> Generate My Workout
+        </button>
+      </form>
+    </div>
+
+    <!-- ── Result Panel ── -->
+    <div class="result-panel">
+      <div class="result-placeholder" id="workoutPlaceholder">
+        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=70&auto=format&fit=crop"
+          style="width:100%;height:200px;object-fit:cover;border-radius:12px;margin-bottom:20px;opacity:.6" alt="Workout"/>
+        <div class="placeholder-icon" style="display:none">🏋️</div>
+        <h3>Your AI Workout Awaits!</h3>
+        <p>Fill in your details and generate a personalized plan powered by IBM Granite AI.</p>
+        <div class="feature-chips">
+          <span class="chip">💪 Sets &amp; Reps</span>
+          <span class="chip">⏱️ Rest Periods</span>
+          <span class="chip">📋 Form Tips</span>
+          <span class="chip">🔥 Warm-up &amp; Cool-down</span>
+        </div>
+      </div>
+
+      <div class="result-content" id="workoutContent" style="display:none">
+        <div class="result-header">
+          <div class="result-title"><i class="bi bi-lightning-charge-fill" style="color:var(--orange)"></i> Your Plan</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-sm btn-outline-success" id="markCompleteBtn">
+              <i class="bi bi-check2-circle"></i> Mark Complete
+            </button>
+            <button class="btn btn-sm btn-outline-info" id="downloadWorkoutBtn" title="Download Plan">
+              <i class="bi bi-download"></i> Download
+            </button>
+          </div>
+        </div>
+        <div class="result-body" id="workoutBody"></div>
+        <div class="result-footer">
+          <button class="btn btn-sm btn-outline-secondary" id="regenerateBtn">
+            <i class="bi bi-arrow-clockwise"></i> Regenerate
+          </button>
+          <span class="powered-tag">🧠 IBM Granite AI</span>
+        </div>
+      </div>
+
+      <div class="loading-state" id="workoutLoading" style="display:none">
+        <div class="loading-animation">
+          <div class="loading-dumbbell">🏋️</div>
+          <div class="loading-text">
+            <h3>Generating Your Plan...</h3>
+            <p>IBM Granite AI is crafting your personalized workout</p>
+          </div>
+          <div class="loading-bar"><div class="loading-fill"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Exercise Image Gallery ── -->
+  <div class="ex-gallery-section fade-in-up">
+    <div class="section-header">
+      <div class="section-title"><i class="bi bi-images" style="color:var(--accent)"></i> Exercise Gallery</div>
+    </div>
+    <div class="ex-gallery">
+      <div class="ex-gal-card"><img src="https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?w=400&q=80&auto=format&fit=crop" alt="Push-ups"/><div class="ex-gal-info"><div class="ex-gal-name">Push-ups</div><div class="ex-gal-tags"><span>Chest</span><span>Triceps</span></div></div></div>
+      <div class="ex-gal-card"><img src="https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&q=80&auto=format&fit=crop" alt="Squats"/><div class="ex-gal-info"><div class="ex-gal-name">Squats</div><div class="ex-gal-tags"><span>Quads</span><span>Glutes</span></div></div></div>
+      <div class="ex-gal-card"><img src="https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=400&q=80&auto=format&fit=crop" alt="Deadlift"/><div class="ex-gal-info"><div class="ex-gal-name">Deadlift</div><div class="ex-gal-tags"><span>Back</span><span>Hamstrings</span></div></div></div>
+      <div class="ex-gal-card"><img src="https://images.unsplash.com/photo-1566241440091-ec10de8db2e1?w=400&q=80&auto=format&fit=crop" alt="Plank"/><div class="ex-gal-info"><div class="ex-gal-name">Plank</div><div class="ex-gal-tags"><span>Core</span><span>Stability</span></div></div></div>
+      <div class="ex-gal-card"><img src="https://images.unsplash.com/photo-1550259979-ed79b48d2a30?w=400&q=80&auto=format&fit=crop" alt="Dumbbell Curl"/><div class="ex-gal-info"><div class="ex-gal-name">Dumbbell Curl</div><div class="ex-gal-tags"><span>Biceps</span><span>Arms</span></div></div></div>
+      <div class="ex-gal-card"><img src="https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=400&q=80&auto=format&fit=crop" alt="Pull-ups"/><div class="ex-gal-info"><div class="ex-gal-name">Pull-ups</div><div class="ex-gal-tags"><span>Back</span><span>Biceps</span></div></div></div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const workoutForm      = document.getElementById("workoutForm");
+const workoutPlaceholder = document.getElementById("workoutPlaceholder");
+const workoutContent   = document.getElementById("workoutContent");
+const workoutLoading   = document.getElementById("workoutLoading");
+const workoutBody      = document.getElementById("workoutBody");
+const timeInput        = document.getElementById("timeAvailable");
+const timeLabel        = document.getElementById("timeLabel");
+let lastParams = null;
+
+timeInput.addEventListener("input",()=>{ timeLabel.textContent=timeInput.value+" min"; });
+
+workoutForm.addEventListener("submit", async(e)=>{
+  e.preventDefault();
+  const level = document.querySelector('input[name="level"]:checked')?.value||"beginner";
+  lastParams = {
+    age:parseInt(document.getElementById("age").value),
+    gender:document.getElementById("gender").value,
+    height:parseFloat(document.getElementById("height").value),
+    weight:parseFloat(document.getElementById("weight").value),
+    goal:document.getElementById("goal").value,
+    level:level,
+    time_available:parseInt(timeInput.value),
+    equipment:document.getElementById("equipment").value
+  };
+  await generateWorkout(lastParams);
+});
+
+document.getElementById("regenerateBtn").addEventListener("click",async()=>{ if(lastParams) await generateWorkout(lastParams); });
+
+// ── Download Workout Plan ──
+document.getElementById("downloadWorkoutBtn").addEventListener("click",()=>{
+  const content = document.getElementById("workoutBody").innerText;
+  if(!content.trim()){ showToast("Generate a plan first!","info"); return; }
+  const date = new Date().toLocaleDateString("en-GB").replace(/\//g,"-");
+  const goal = document.getElementById("goal")?.value || "fitness";
+  const header = `FITNESS BRO — AI WORKOUT PLAN\nGenerated: ${new Date().toLocaleString()}\nGoal: ${goal.replace(/_/g," ").toUpperCase()}\n${"=".repeat(50)}\n\n`;
+  downloadTxt(header + content, `workout-plan-${date}.txt`);
+  showToast("Workout plan downloaded! 💪","success");
+});
+
+document.getElementById("markCompleteBtn").addEventListener("click",async()=>{
+  const res = await fetch("/api/habits/today").then(r=>r.json());
+  await fetch("/api/habits/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...res,workout_done:1})});
+  const btn = document.getElementById("markCompleteBtn");
+  btn.innerHTML='<i class="bi bi-check-circle-fill text-success"></i> Completed!';
+  btn.disabled=true;
+  showToast("Workout marked as complete! 🔥","success");
+});
+
+async function generateWorkout(params){
+  workoutPlaceholder.style.display="none";
+  workoutContent.style.display="none";
+  workoutLoading.style.display="flex";
+  try{
+    const res  = await fetch("/api/workout/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(params)});
+    const data = await res.json();
+    workoutLoading.style.display="none";
+    workoutContent.style.display="block";
+    workoutBody.innerHTML = typeof marked!=="undefined" ? marked.parse(data.plan) : data.plan.replace(/\n/g,"<br>");
+  } catch(e){
+    workoutLoading.style.display="none";
+    workoutContent.style.display="block";
+    workoutBody.innerHTML="<p class='text-danger'>⚠️ Failed to generate. Please try again.</p>";
+  }
+}
+</script>
+{% endblock %}

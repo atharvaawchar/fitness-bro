@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block title %}Habit Tracker{% endblock %}
+{% block header_title %}Daily Habit Tracker{% endblock %}
+
+{% block content %}
+<div class="habits-container fade-in">
+
+  <!-- Date + Streak Header -->
+  <div class="habits-hero">
+    <div class="habits-date" id="habitDate">Loading...</div>
+    <div class="streak-display">
+      <span class="streak-fire">🔥</span>
+      <span class="streak-count" id="habitStreak">0</span>
+      <span class="streak-label">Day Streak</span>
+    </div>
+  </div>
+
+  <!-- Overall Progress -->
+  <div class="overall-progress card-panel fade-in-up">
+    <div class="progress-header">
+      <h3>Today's Score</h3>
+      <div class="progress-percent" id="overallPercent">0%</div>
+    </div>
+    <div class="progress-bar-custom">
+      <div class="progress-fill-custom" id="overallBar" style="width:0%"></div>
+    </div>
+    <div id="progressMessage" class="progress-message">Complete your habits to build your streak! 💪</div>
+  </div>
+
+  <!-- Habit Cards Grid -->
+  <div class="habits-grid fade-in-up">
+
+    <!-- Workout -->
+    <div class="habit-card" id="hc-workout">
+      <div class="habit-card-icon">🏋️</div>
+      <div class="habit-card-info">
+        <div class="habit-card-title">Workout Done</div>
+        <div class="habit-card-desc">Complete today's training session</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="h-workout-check" onchange="updateHabits()" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <!-- Water Intake -->
+    <div class="habit-card">
+      <div class="habit-card-icon">💧</div>
+      <div class="habit-card-info">
+        <div class="habit-card-title">Water Intake</div>
+        <div class="habit-card-desc">Goal: 8 glasses per day</div>
+      </div>
+      <div class="counter-control">
+        <button class="counter-btn" onclick="adjustCounter('water', -1)">−</button>
+        <span class="counter-value" id="water-count">0</span>
+        <button class="counter-btn" onclick="adjustCounter('water', 1)">+</button>
+      </div>
+    </div>
+
+    <!-- Sleep -->
+    <div class="habit-card">
+      <div class="habit-card-icon">😴</div>
+      <div class="habit-card-info">
+        <div class="habit-card-title">Sleep Hours</div>
+        <div class="habit-card-desc">Goal: 7–9 hours per night</div>
+      </div>
+      <div class="counter-control">
+        <button class="counter-btn" onclick="adjustCounter('sleep', -0.5)">−</button>
+        <span class="counter-value" id="sleep-count">0</span>
+        <button class="counter-btn" onclick="adjustCounter('sleep', 0.5)">+</button>
+      </div>
+    </div>
+
+    <!-- Healthy Meals -->
+    <div class="habit-card">
+      <div class="habit-card-icon">🥗</div>
+      <div class="habit-card-info">
+        <div class="habit-card-title">Healthy Meals</div>
+        <div class="habit-card-desc">Goal: 3 balanced meals today</div>
+      </div>
+      <div class="counter-control">
+        <button class="counter-btn" onclick="adjustCounter('meals', -1)">−</button>
+        <span class="counter-value" id="meals-count">0</span>
+        <button class="counter-btn" onclick="adjustCounter('meals', 1)">+</button>
+      </div>
+    </div>
+
+    <!-- Steps -->
+    <div class="habit-card steps-card">
+      <div class="habit-card-icon">👟</div>
+      <div class="habit-card-info">
+        <div class="habit-card-title">Daily Steps</div>
+        <div class="habit-card-desc">Goal: 10,000 steps</div>
+      </div>
+      <div class="steps-input-wrapper">
+        <input type="number" class="steps-input" id="steps-input" placeholder="0" min="0" max="50000"
+          onchange="updateHabits()" oninput="updateHabits()" />
+        <span class="steps-label">steps</span>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="habit-card notes-card">
+      <div class="habit-card-icon">📝</div>
+      <div class="habit-card-info notes-full">
+        <div class="habit-card-title">Daily Notes</div>
+        <textarea class="notes-textarea" id="notes-input" placeholder="How did today go? Any wins or challenges?" onblur="updateHabits()"></textarea>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Achievements -->
+  <div class="achievements-section fade-in-up">
+    <h3 class="section-title"><i class="bi bi-trophy-fill text-warning"></i> Achievements</h3>
+    <div class="achievements-grid" id="achievementsGrid">
+      <div class="achievement-badge locked" id="ach-3day">
+        <div class="ach-icon">🔥</div>
+        <div class="ach-name">3-Day Streak</div>
+      </div>
+      <div class="achievement-badge locked" id="ach-7day">
+        <div class="ach-icon">⚡</div>
+        <div class="ach-name">7-Day Streak</div>
+      </div>
+      <div class="achievement-badge locked" id="ach-30day">
+        <div class="ach-icon">🏆</div>
+        <div class="ach-name">30-Day Streak</div>
+      </div>
+      <div class="achievement-badge locked" id="ach-hydrated">
+        <div class="ach-icon">💧</div>
+        <div class="ach-name">Hydration Hero</div>
+      </div>
+      <div class="achievement-badge locked" id="ach-sleepwell">
+        <div class="ach-icon">😴</div>
+        <div class="ach-name">Sleep Well</div>
+      </div>
+      <div class="achievement-badge locked" id="ach-10k">
+        <div class="ach-icon">👟</div>
+        <div class="ach-name">10K Steps</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let habitData = { workout_done:0, water_glasses:0, sleep_hours:0, healthy_meals:0, steps:0, notes:"" };
+let saveTimeout;
+
+// Set today's date
+const today = new Date();
+document.getElementById("habitDate").textContent = today.toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+
+// Load habits
+fetch("/api/habits/today").then(r=>r.json()).then(data=>{
+  habitData = data;
+  document.getElementById("h-workout-check").checked = data.workout_done;
+  document.getElementById("water-count").textContent  = data.water_glasses;
+  document.getElementById("sleep-count").textContent  = data.sleep_hours;
+  document.getElementById("meals-count").textContent  = data.healthy_meals;
+  document.getElementById("steps-input").value        = data.steps || "";
+  document.getElementById("notes-input").value        = data.notes || "";
+  document.getElementById("habitStreak").textContent  = data.streak || 0;
+  updateProgress();
+  updateAchievements(data.streak);
+});
+
+function adjustCounter(type, delta){
+  if(type === "water"){
+    habitData.water_glasses = Math.max(0, Math.min(20, (habitData.water_glasses||0) + delta));
+    document.getElementById("water-count").textContent = habitData.water_glasses;
+  } else if(type === "sleep"){
+    habitData.sleep_hours = Math.max(0, Math.min(16, ((habitData.sleep_hours||0) + delta)));
+    document.getElementById("sleep-count").textContent = habitData.sleep_hours;
+  } else if(type === "meals"){
+    habitData.healthy_meals = Math.max(0, Math.min(8, (habitData.healthy_meals||0) + delta));
+    document.getElementById("meals-count").textContent = habitData.healthy_meals;
+  }
+  updateProgress();
+  debounceSave();
+}
+
+function updateHabits(){
+  habitData.workout_done  = document.getElementById("h-workout-check").checked ? 1 : 0;
+  habitData.steps         = parseInt(document.getElementById("steps-input").value)||0;
+  habitData.notes         = document.getElementById("notes-input").value;
+  updateProgress();
+  debounceSave();
+}
+
+function updateProgress(){
+  let score = 0;
+  if(habitData.workout_done)          score += 25;
+  if((habitData.water_glasses||0)>=8) score += 25;
+  if((habitData.sleep_hours||0)>=7)   score += 20;
+  if((habitData.healthy_meals||0)>=3) score += 20;
+  if((habitData.steps||0)>=10000)     score += 10;
+  document.getElementById("overallPercent").textContent = score + "%";
+  document.getElementById("overallBar").style.width = score + "%";
+  const msgs = {
+    0:"Start your journey — every habit counts! 💪",
+    25:"Great start! Keep going! 🌟",
+    50:"Halfway there — you're doing amazing! 🔥",
+    75:"Almost perfect day! Push through! ⚡",
+    100:"PERFECT DAY! You're unstoppable! 🏆"
+  };
+  const nearest = [0,25,50,75,100].reduce((a,b)=>Math.abs(b-score)<Math.abs(a-score)?b:a);
+  document.getElementById("progressMessage").textContent = msgs[nearest];
+}
+
+function debounceSave(){
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(async()=>{
+    const res = await fetch("/api/habits/update",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(habitData)
+    });
+    const d = await res.json();
+    document.getElementById("habitStreak").textContent = d.streak||0;
+    updateAchievements(d.streak||0);
+  }, 800);
+}
+
+function updateAchievements(streak){
+  if(streak>=3)  document.getElementById("ach-3day").classList.replace("locked","unlocked");
+  if(streak>=7)  document.getElementById("ach-7day").classList.replace("locked","unlocked");
+  if(streak>=30) document.getElementById("ach-30day").classList.replace("locked","unlocked");
+  if((habitData.water_glasses||0)>=8)  document.getElementById("ach-hydrated").classList.replace("locked","unlocked");
+  if((habitData.sleep_hours||0)>=7)    document.getElementById("ach-sleepwell").classList.replace("locked","unlocked");
+  if((habitData.steps||0)>=10000)      document.getElementById("ach-10k").classList.replace("locked","unlocked");
+}
+</script>
+{% endblock %}

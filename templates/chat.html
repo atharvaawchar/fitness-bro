@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}AI Coach Chat{% endblock %}
+{% block header_title %}AI Fitness Coach{% endblock %}
+
+{% block content %}
+<div class="chat-container fade-in">
+
+  <!-- Chat Header -->
+  <div class="chat-header">
+    <div class="chat-avatar">🤖</div>
+    <div class="chat-info">
+      <div class="chat-name">Fitness Bro AI</div>
+      <div class="chat-status"><span class="status-dot"></span> Online — IBM Granite Powered</div>
+    </div>
+    <button class="btn btn-sm btn-outline-danger" id="clearChatBtn">
+      <i class="bi bi-trash"></i> Clear
+    </button>
+  </div>
+
+  <!-- Messages Area -->
+  <div class="chat-messages" id="chatMessages">
+    <div class="message bot-message">
+      <div class="message-avatar">🤖</div>
+      <div class="message-bubble">
+        <p><strong>Hey there, I'm Fitness Bro!</strong> 💪 Your AI-powered personal fitness coach.</p>
+        <p>I can help you with:</p>
+        <ul>
+          <li>🏋️ <strong>Workout Plans</strong> — home, gym, strength, cardio</li>
+          <li>🥗 <strong>Meal Planning</strong> — nutrition tailored to your goals</li>
+          <li>📊 <strong>BMI Analysis</strong> — body composition insights</li>
+          <li>🎯 <strong>Habit Coaching</strong> — build lasting fitness habits</li>
+          <li>💡 <strong>Daily Motivation</strong> — stay on track!</li>
+        </ul>
+        <p>What fitness goal can I help you crush today? 🔥</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Typing Indicator -->
+  <div class="typing-indicator" id="typingIndicator" style="display:none">
+    <div class="typing-avatar">🤖</div>
+    <div class="typing-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <span class="typing-text">Fitness Bro is thinking...</span>
+  </div>
+
+  <!-- Quick Prompts -->
+  <div class="quick-prompts" id="quickPrompts">
+    <button class="quick-prompt-btn" data-prompt="Give me a beginner full-body workout for today">💪 Beginner Workout</button>
+    <button class="quick-prompt-btn" data-prompt="Create a healthy meal plan for weight loss">🥗 Weight Loss Meals</button>
+    <button class="quick-prompt-btn" data-prompt="How can I build muscle at home without equipment?">🏠 Home Muscle Building</button>
+    <button class="quick-prompt-btn" data-prompt="What are the best exercises for burning fat fast?">🔥 Fat Burning Tips</button>
+    <button class="quick-prompt-btn" data-prompt="Give me motivation to stay consistent with my fitness goals">🎯 Motivation Boost</button>
+    <button class="quick-prompt-btn" data-prompt="What should I eat before and after a workout?">🍎 Pre/Post Workout Food</button>
+  </div>
+
+  <!-- Input Area -->
+  <div class="chat-input-area">
+    <div class="chat-input-wrapper">
+      <textarea
+        id="chatInput"
+        class="chat-input"
+        placeholder="Ask your AI fitness coach anything... (Shift+Enter for new line)"
+        rows="1"
+      ></textarea>
+      <button class="chat-send-btn" id="sendBtn">
+        <i class="bi bi-send-fill"></i>
+      </button>
+    </div>
+    <div class="chat-input-hint">
+      <span>Powered by <strong>IBM Granite</strong> via Watsonx.ai</span>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const chatMessages   = document.getElementById("chatMessages");
+const chatInput      = document.getElementById("chatInput");
+const sendBtn        = document.getElementById("sendBtn");
+const typingIndicator = document.getElementById("typingIndicator");
+const clearChatBtn   = document.getElementById("clearChatBtn");
+
+// Load history
+fetch("/api/chat/history").then(r=>r.json()).then(data=>{
+  if(data.history && data.history.length > 0){
+    // Clear default welcome if there's history
+    chatMessages.innerHTML = "";
+    data.history.forEach(msg => appendMessage(msg.role, msg.content));
+  }
+});
+
+function appendMessage(role, content){
+  const isBot = role === "assistant";
+  const div = document.createElement("div");
+  div.className = `message ${isBot ? "bot-message" : "user-message"} slide-in`;
+  const parsed = typeof marked !== "undefined" ? marked.parse(content) : content.replace(/\n/g,"<br>");
+  div.innerHTML = isBot
+    ? `<div class="message-avatar">🤖</div><div class="message-bubble">${parsed}</div>`
+    : `<div class="message-bubble">${parsed}</div><div class="message-avatar">👤</div>`;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+async function sendMessage(){
+  const msg = chatInput.value.trim();
+  if(!msg) return;
+  chatInput.value = "";
+  chatInput.style.height = "auto";
+  sendBtn.disabled = true;
+  document.getElementById("quickPrompts").style.display = "none";
+  appendMessage("user", msg);
+
+  typingIndicator.style.display = "flex";
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+
+  try{
+    const res = await fetch("/api/chat", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({message: msg})
+    });
+    const data = await res.json();
+    typingIndicator.style.display = "none";
+    if(data.response){
+      appendMessage("assistant", data.response);
+    } else {
+      appendMessage("assistant","⚠️ Sorry, I couldn't process that. Please try again.");
+    }
+  } catch(e){
+    typingIndicator.style.display = "none";
+    appendMessage("assistant","⚠️ Connection error. Please check the server.");
+  }
+  sendBtn.disabled = false;
+  chatInput.focus();
+}
+
+sendBtn.addEventListener("click", sendMessage);
+chatInput.addEventListener("keydown", e=>{
+  if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+});
+
+// Auto-resize textarea
+chatInput.addEventListener("input", function(){
+  this.style.height = "auto";
+  this.style.height = Math.min(this.scrollHeight, 120) + "px";
+});
+
+// Quick prompts
+document.querySelectorAll(".quick-prompt-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    chatInput.value = btn.dataset.prompt;
+    sendMessage();
+  });
+});
+
+// Clear chat
+clearChatBtn.addEventListener("click", async ()=>{
+  if(!confirm("Clear all chat history?")) return;
+  await fetch("/api/chat/clear", {method:"DELETE"});
+  chatMessages.innerHTML = "";
+  appendMessage("assistant","Chat cleared! I'm ready to help you again. 💪 What's your fitness goal today?");
+  document.getElementById("quickPrompts").style.display = "flex";
+});
+</script>
+{% endblock %}

@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block header_title %}Welcome back, Champion 💪{% endblock %}
+{% block header_sub %}Ready to crush today's goals?{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+
+  <!-- ── Hero Banner ── -->
+  <div class="db-hero fade-in">
+    <div class="db-hero-bg">
+      <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1400&q=80&auto=format&fit=crop" alt="" />
+    </div>
+    <div class="db-hero-overlay"></div>
+    <div class="db-hero-content">
+      <div class="db-hero-badge"><i class="bi bi-cpu-fill"></i> IBM Granite AI Active</div>
+      <h2 class="db-hero-title">Your Fitness Journey<br>Starts <span>Now</span></h2>
+      <p class="db-hero-desc">Personalized workouts, smart nutrition, and daily habit tracking — all powered by AI.</p>
+      <div class="db-hero-btns">
+        <a href="/workout" class="db-btn-primary"><i class="bi bi-lightning-charge-fill"></i> Generate Workout</a>
+        <a href="/chat"    class="db-btn-ghost"><i class="bi bi-robot"></i> Ask AI Coach</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Stats ── -->
+  <div class="stats-grid fade-in-up">
+    <div class="stat-card">
+      <div class="stat-icon fi-orange">🔥</div>
+      <div><div class="stat-value" id="streakCount">0</div><div class="stat-label">Day Streak</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon fi-purple">💪</div>
+      <div><div class="stat-value" id="workoutCount">0</div><div class="stat-label">Workouts Done</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon fi-green">📊</div>
+      <div><div class="stat-value" id="currentBMI">—</div><div class="stat-label">Current BMI</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon fi-teal">💧</div>
+      <div><div class="stat-value" id="waterGlasses">0</div><div class="stat-label">Glasses Today</div></div>
+    </div>
+  </div>
+
+  <!-- ── Today's Habits strip ── -->
+  <div class="fade-in-up">
+    <div class="section-header">
+      <div class="section-title"><i class="bi bi-check2-circle" style="color:var(--green)"></i> Today's Habits</div>
+      <a href="/habits" class="section-link">Update <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="habits-strip">
+      <div class="habit-pill"><div class="habit-pill-icon">🏋️</div><div class="habit-pill-name">Workout</div><div class="habit-pill-val" id="h-workout">—</div></div>
+      <div class="habit-pill"><div class="habit-pill-icon">💧</div><div class="habit-pill-name">Water</div><div class="habit-pill-val" id="h-water">—</div></div>
+      <div class="habit-pill"><div class="habit-pill-icon">😴</div><div class="habit-pill-name">Sleep</div><div class="habit-pill-val" id="h-sleep">—</div></div>
+      <div class="habit-pill"><div class="habit-pill-icon">🥗</div><div class="habit-pill-name">Meals</div><div class="habit-pill-val" id="h-meals">—</div></div>
+      <div class="habit-pill"><div class="habit-pill-icon">👟</div><div class="habit-pill-name">Steps</div><div class="habit-pill-val" id="h-steps">—</div></div>
+    </div>
+  </div>
+
+  <!-- ── Explore Features ── -->
+  <div class="fade-in-up">
+    <div class="section-label">Explore Features</div>
+    <div class="feature-grid">
+
+      <a href="/chat" class="feature-card fc-purple">
+        <div class="fc-img-wrap"><img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&q=70&auto=format&fit=crop" alt="AI Coach" /></div>
+        <div class="fc-body">
+          <div class="feature-icon fi-purple" style="width:36px;height:36px;font-size:16px"><i class="bi bi-robot" style="color:var(--accent)"></i></div>
+          <div class="feature-name">AI Chat Coach</div>
+          <div class="feature-desc">Personalized fitness advice powered by IBM Granite</div>
+        </div>
+      </a>
+
+      <a href="/workout" class="feature-card fc-orange">
+        <div class="fc-img-wrap"><img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400&q=70&auto=format&fit=crop" alt="Workout" /></div>
+        <div class="fc-body">
+          <div class="feature-icon fi-orange" style="width:36px;height:36px;font-size:16px"><i class="bi bi-lightning-charge-fill" style="color:var(--orange)"></i></div>
+          <div class="feature-name">Workout Planner</div>
+          <div class="feature-desc">Custom plans for home, gym, strength &amp; cardio</div>
+        </div>
+      </a>
+
+      <a href="/meal" class="feature-card fc-teal">
+        <div class="fc-img-wrap"><img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=70&auto=format&fit=crop" alt="Meals" /></div>
+        <div class="fc-body">
+          <div class="feature-icon fi-teal" style="width:36px;height:36px;font-size:16px"><i class="bi bi-egg-fried" style="color:var(--teal)"></i></div>
+          <div class="feature-name">Meal Planner</div>
+          <div class="feature-desc">AI nutrition plans tailored to your goals</div>
+        </div>
+      </a>
+
+      <a href="/bmi" class="feature-card fc-blue">
+        <div class="fc-img-wrap"><img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=400&q=70&auto=format&fit=crop" alt="BMI" /></div>
+        <div class="fc-body">
+          <div class="feature-icon fi-blue" style="width:36px;height:36px;font-size:16px"><i class="bi bi-activity" style="color:#60a5fa"></i></div>
+          <div class="feature-name">BMI Calculator</div>
+          <div class="feature-desc">Body analysis with AI health recommendations</div>
+        </div>
+      </a>
+
+      <a href="/habits" class="feature-card fc-green">
+        <div class="fc-img-wrap"><img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&q=70&auto=format&fit=crop" alt="Habits" /></div>
+        <div class="fc-body">
+          <div class="feature-icon fi-green" style="width:36px;height:36px;font-size:16px"><i class="bi bi-check2-circle" style="color:var(--green)"></i></div>
+          <div class="feature-name">Habit Tracker</div>
+          <div class="feature-desc">Build daily streaks and healthy routines</div>
+        </div>
+      </a>
+
+      <a href="/progress" class="feature-card fc-pink">
+        <div class="fc-img-wrap"><img src="https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=400&q=70&auto=format&fit=crop" alt="Progress" /></div>
+        <div class="fc-body">
+          <div class="feature-icon fi-pink" style="width:36px;height:36px;font-size:16px"><i class="bi bi-bar-chart-line" style="color:var(--pink)"></i></div>
+          <div class="feature-name">Progress</div>
+          <div class="feature-desc">Track your journey with charts &amp; heatmaps</div>
+        </div>
+      </a>
+
+      <a href="/profile" class="feature-card fc-yellow">
+        <div class="fc-img-wrap"><img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&q=70&auto=format&fit=crop" alt="Profile" /></div>
+        <div class="fc-body">
+          <div class="feature-icon fi-yellow" style="width:36px;height:36px;font-size:16px"><i class="bi bi-person-fill" style="color:var(--yellow)"></i></div>
+          <div class="feature-name">My Profile</div>
+          <div class="feature-desc">Manage your goals and fitness preferences</div>
+        </div>
+      </a>
+
+      <a href="/chat" class="feature-card fc-purple">
+        <div class="fc-img-wrap"><img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&q=70&auto=format&fit=crop" alt="Motivation" /></div>
+        <div class="fc-body">
+          <div class="feature-icon fi-purple" style="width:36px;height:36px;font-size:16px"><i class="bi bi-stars" style="color:var(--accent)"></i></div>
+          <div class="feature-name">Daily Motivation</div>
+          <div class="feature-desc">Get inspired with AI-powered coaching messages</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- ── Exercise Showcase ── -->
+  <div class="fade-in-up">
+    <div class="section-header">
+      <div class="section-title"><i class="bi bi-lightning-charge-fill" style="color:var(--orange)"></i> Exercise Spotlight</div>
+      <a href="/workout" class="section-link">Build Plan <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="exercise-showcase">
+      <div class="ex-card">
+        <img src="https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?w=500&q=80&auto=format&fit=crop&crop=focalpoint&fp-y=0.3" alt="Push-ups"/>
+        <div class="ex-overlay"><span class="ex-tag">Chest</span></div>
+        <div class="ex-info"><div class="ex-name">Push-ups</div><div class="ex-meta">3 × 12 reps</div></div>
+      </div>
+      <div class="ex-card">
+        <img src="https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=500&q=80&auto=format&fit=crop" alt="Squats"/>
+        <div class="ex-overlay"><span class="ex-tag">Legs</span></div>
+        <div class="ex-info"><div class="ex-name">Squats</div><div class="ex-meta">4 × 15 reps</div></div>
+      </div>
+      <div class="ex-card">
+        <img src="https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=500&q=80&auto=format&fit=crop" alt="Deadlift"/>
+        <div class="ex-overlay"><span class="ex-tag">Back</span></div>
+        <div class="ex-info"><div class="ex-name">Deadlift</div><div class="ex-meta">3 × 8 reps</div></div>
+      </div>
+      <div class="ex-card">
+        <img src="https://images.unsplash.com/photo-1566241440091-ec10de8db2e1?w=500&q=80&auto=format&fit=crop" alt="Plank"/>
+        <div class="ex-overlay"><span class="ex-tag">Core</span></div>
+        <div class="ex-info"><div class="ex-name">Plank</div><div class="ex-meta">3 × 45s hold</div></div>
+      </div>
+      <div class="ex-card">
+        <img src="https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=500&q=80&auto=format&fit=crop" alt="Pull-ups"/>
+        <div class="ex-overlay"><span class="ex-tag">Arms</span></div>
+        <div class="ex-info"><div class="ex-name">Pull-ups</div><div class="ex-meta">3 × 10 reps</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+  fetch("/api/progress").then(r=>r.json()).then(d=>{
+    document.getElementById("streakCount").textContent  = d.current_streak||0;
+    document.getElementById("workoutCount").textContent = d.total_workouts_completed||0;
+    document.getElementById("headerPoints").textContent = (d.total_workouts_completed||0)*10;
+    if(d.bmi_history&&d.bmi_history.length) document.getElementById("currentBMI").textContent=d.bmi_history[0].bmi;
+  });
+  fetch("/api/habits/today").then(r=>r.json()).then(d=>{
+    document.getElementById("waterGlasses").textContent = d.water_glasses+"/8";
+    document.getElementById("h-workout").textContent = d.workout_done?"✅ Done":"Not yet";
+    document.getElementById("h-water").textContent   = d.water_glasses+" glasses";
+    document.getElementById("h-sleep").textContent   = d.sleep_hours+" hrs";
+    document.getElementById("h-meals").textContent   = d.healthy_meals+" meals";
+    document.getElementById("h-steps").textContent   = (d.steps||0).toLocaleString();
+  });
+});
+</script>
+{% endblock %}

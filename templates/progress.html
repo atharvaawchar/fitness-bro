@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}Progress Dashboard{% endblock %}
+{% block header_title %}Progress Dashboard{% endblock %}
+
+{% block content %}
+<div class="progress-container fade-in">
+
+  <!-- Top Stats -->
+  <div class="stats-grid fade-in-up" id="progressStats">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🔥</div>
+      <div class="stat-info">
+        <div class="stat-value" id="pg-streak">—</div>
+        <div class="stat-label">Current Streak</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:linear-gradient(135deg,#3b82f6,#7c3aed)">💪</div>
+      <div class="stat-info">
+        <div class="stat-value" id="pg-workouts">—</div>
+        <div class="stat-label">Workouts Done</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:linear-gradient(135deg,#22c55e,#059669)">📋</div>
+      <div class="stat-info">
+        <div class="stat-value" id="pg-plans">—</div>
+        <div class="stat-label">Plans Generated</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)">📊</div>
+      <div class="stat-info">
+        <div class="stat-value" id="pg-bmi">—</div>
+        <div class="stat-label">Latest BMI</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-grid fade-in-up">
+
+    <!-- Workout History Chart -->
+    <div class="chart-panel">
+      <div class="chart-header">
+        <h3><i class="bi bi-lightning-charge-fill text-warning"></i> Workout Activity</h3>
+        <span class="chart-subtitle">Last 14 days</span>
+      </div>
+      <div class="activity-heatmap" id="activityHeatmap"></div>
+    </div>
+
+    <!-- Habit Consistency -->
+    <div class="chart-panel">
+      <div class="chart-header">
+        <h3><i class="bi bi-check2-circle text-success"></i> Habit Consistency</h3>
+        <span class="chart-subtitle">Last 7 days</span>
+      </div>
+      <div id="habitConsistency" class="habit-bars"></div>
+    </div>
+
+    <!-- BMI History -->
+    <div class="chart-panel full-width">
+      <div class="chart-header">
+        <h3><i class="bi bi-activity text-info"></i> BMI History</h3>
+        <span class="chart-subtitle">Track your body composition</span>
+      </div>
+      <div id="bmiChart" class="bmi-chart-area">
+        <div class="empty-state">
+          <div class="empty-icon">📊</div>
+          <p>Use the BMI Calculator to start tracking your body composition.</p>
+          <a href="/bmi" class="btn btn-sm btn-primary">Calculate BMI</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Habit Breakdown Table -->
+    <div class="chart-panel full-width">
+      <div class="chart-header">
+        <h3><i class="bi bi-table text-primary"></i> Recent Habit Log</h3>
+        <span class="chart-subtitle">Last 7 days detailed</span>
+      </div>
+      <div class="table-responsive">
+        <table class="fitness-table" id="habitTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>🏋️ Workout</th>
+              <th>💧 Water</th>
+              <th>😴 Sleep</th>
+              <th>🥗 Meals</th>
+              <th>👟 Steps</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody id="habitTableBody">
+            <tr><td colspan="7" class="text-center text-muted">Loading data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+fetch("/api/progress").then(r=>r.json()).then(data=>{
+  document.getElementById("pg-streak").textContent   = data.current_streak || 0;
+  document.getElementById("pg-workouts").textContent = data.total_workouts_completed || 0;
+  document.getElementById("pg-plans").textContent    = data.total_workouts_generated || 0;
+
+  if(data.bmi_history && data.bmi_history.length>0){
+    document.getElementById("pg-bmi").textContent = data.bmi_history[0].bmi;
+  }
+
+  buildActivityHeatmap(data.habits_history);
+  buildHabitBars(data.habits_history);
+  buildBMIChart(data.bmi_history);
+  buildHabitTable(data.habits_history);
+});
+
+function buildActivityHeatmap(habits){
+  const el = document.getElementById("activityHeatmap");
+  el.innerHTML = "";
+  const days = 14;
+  const today = new Date();
+  const map = {};
+  (habits||[]).forEach(h=>{ map[h.date] = h.workout_done; });
+
+  for(let i=days-1; i>=0; i--){
+    const d = new Date(today);
+    d.setDate(d.getDate()-i);
+    const dateStr = d.toISOString().split("T")[0];
+    const cell = document.createElement("div");
+    cell.className = "heat-cell " + (map[dateStr] ? "heat-active" : "heat-empty");
+    cell.title = dateStr + (map[dateStr] ? " ✅ Workout done" : " ❌ Rest day");
+    el.appendChild(cell);
+  }
+}
+
+function buildHabitBars(habits){
+  const el = document.getElementById("habitConsistency");
+  el.innerHTML = "";
+  const slice = (habits||[]).slice(0,7).reverse();
+  if(!slice.length){ el.innerHTML="<p class='text-muted text-center'>No habit data yet.</p>"; return; }
+
+  slice.forEach(h=>{
+    let score = 0;
+    if(h.workout_done)     score += 25;
+    if(h.water_glasses>=8) score += 25;
+    if(h.sleep_hours>=7)   score += 20;
+    if(h.healthy_meals>=3) score += 20;
+    if(h.steps>=10000)     score += 10;
+    const color = score>=75?"#22c55e":score>=50?"#f59e0b":"#ef4444";
+    const dayName = new Date(h.date).toLocaleDateString("en",{weekday:"short"});
+    el.innerHTML += `
+      <div class="habit-bar-item">
+        <div class="habit-bar-label">${dayName}</div>
+        <div class="habit-bar-track">
+          <div class="habit-bar-fill" style="width:${score}%;background:${color}"></div>
+        </div>
+        <div class="habit-bar-val">${score}%</div>
+      </div>`;
+  });
+}
+
+function buildBMIChart(bmiHistory){
+  const el = document.getElementById("bmiChart");
+  if(!bmiHistory||!bmiHistory.length) return;
+  const reversed = [...bmiHistory].reverse();
+  const max = Math.max(...reversed.map(b=>b.bmi));
+  const min = Math.min(...reversed.map(b=>b.bmi)) - 2;
+
+  el.innerHTML = `<div class="bmi-line-chart">
+    ${reversed.map(b=>{
+      const pct = ((b.bmi-min)/(max-min+2))*100;
+      const c = b.bmi<18.5?"#3b82f6":b.bmi<25?"#22c55e":b.bmi<30?"#f59e0b":"#ef4444";
+      return `<div class="bmi-bar-wrap" title="${b.date}: BMI ${b.bmi}">
+        <div class="bmi-bar" style="height:${pct}%;background:${c}"></div>
+        <div class="bmi-bar-label">${b.bmi}</div>
+        <div class="bmi-bar-date">${new Date(b.date).toLocaleDateString("en",{month:"short",day:"numeric"})}</div>
+      </div>`;
+    }).join("")}
+  </div>`;
+}
+
+function buildHabitTable(habits){
+  const tbody = document.getElementById("habitTableBody");
+  const slice = (habits||[]).slice(0,7);
+  if(!slice.length){ tbody.innerHTML="<tr><td colspan='7' class='text-center text-muted'>No data yet. Start tracking habits!</td></tr>"; return; }
+  tbody.innerHTML = slice.map(h=>{
+    let score=0;
+    if(h.workout_done)     score+=25;
+    if(h.water_glasses>=8) score+=25;
+    if(h.sleep_hours>=7)   score+=20;
+    if(h.healthy_meals>=3) score+=20;
+    if(h.steps>=10000)     score+=10;
+    const badge = score>=75?"badge-success":score>=50?"badge-warning":"badge-danger";
+    return `<tr>
+      <td>${h.date}</td>
+      <td>${h.workout_done?'<span class="text-success">✅</span>':'<span class="text-muted">—</span>'}</td>
+      <td>${h.water_glasses} / 8</td>
+      <td>${h.sleep_hours} hrs</td>
+      <td>${h.healthy_meals} meals</td>
+      <td>${(h.steps||0).toLocaleString()}</td>
+      <td><span class="score-badge ${badge}">${score}%</span></td>
+    </tr>`;
+  }).join("");
+}
+</script>
+{% endblock %}

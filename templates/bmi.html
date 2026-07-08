@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}BMI Calculator{% endblock %}
+{% block header_title %}BMI Calculator{% endblock %}
+
+{% block content %}
+<div class="bmi-container fade-in">
+
+  <div class="planner-layout">
+    <!-- Form Panel -->
+    <div class="form-panel">
+      <div class="panel-header">
+        <h2><i class="bi bi-activity text-success"></i> Body Mass Index</h2>
+        <p>Calculate your BMI and get AI-powered health recommendations.</p>
+      </div>
+
+      <form id="bmiForm" class="fitness-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><i class="bi bi-rulers"></i> Height (cm)</label>
+            <input type="number" class="form-control" id="bmiHeight" min="100" max="250" placeholder="170" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="bi bi-speedometer2"></i> Weight (kg)</label>
+            <input type="number" class="form-control" id="bmiWeight" min="30" max="300" placeholder="70" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><i class="bi bi-person"></i> Age</label>
+            <input type="number" class="form-control" id="bmiAge" min="10" max="90" value="25" />
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="bi bi-gender-ambiguous"></i> Gender</label>
+            <select class="form-select" id="bmiGender">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="prefer_not_to_say">Prefer not to say</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label"><i class="bi bi-bullseye"></i> Your Fitness Goal</label>
+          <select class="form-select" id="bmiGoal">
+            <option value="weight_loss">🔥 Lose Weight</option>
+            <option value="muscle_building">💪 Build Muscle</option>
+            <option value="general_fitness" selected>⚡ General Wellness</option>
+            <option value="maintenance">⚖️ Maintain Weight</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-success btn-generate w-100">
+          <i class="bi bi-calculator"></i> Calculate BMI & Get Recommendations
+        </button>
+      </form>
+
+      <!-- BMI Reference Chart -->
+      <div class="bmi-reference">
+        <h4>BMI Reference</h4>
+        <div class="bmi-scale">
+          <div class="bmi-range underweight">Underweight<br><strong>&lt; 18.5</strong></div>
+          <div class="bmi-range normal">Normal<br><strong>18.5–24.9</strong></div>
+          <div class="bmi-range overweight">Overweight<br><strong>25–29.9</strong></div>
+          <div class="bmi-range obese">Obese<br><strong>&ge; 30</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Panel -->
+    <div class="result-panel">
+      <div class="result-placeholder" id="bmiPlaceholder">
+        <div class="placeholder-icon">📊</div>
+        <h3>Ready to Analyze Your BMI?</h3>
+        <p>Enter your height and weight to instantly calculate your BMI and receive personalized fitness recommendations from IBM Granite AI.</p>
+        <div class="feature-chips">
+          <span class="chip">📊 BMI Score</span>
+          <span class="chip">🏷️ Health Category</span>
+          <span class="chip">🎯 Action Plan</span>
+          <span class="chip">💡 AI Recommendations</span>
+        </div>
+      </div>
+
+      <div id="bmiResultCard" style="display:none">
+        <!-- BMI Gauge -->
+        <div class="bmi-gauge-card">
+          <div class="bmi-gauge">
+            <svg viewBox="0 0 200 120" class="gauge-svg">
+              <defs>
+                <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%"   stop-color="#3b82f6"/>
+                  <stop offset="33%"  stop-color="#22c55e"/>
+                  <stop offset="66%"  stop-color="#f59e0b"/>
+                  <stop offset="100%" stop-color="#ef4444"/>
+                </linearGradient>
+              </defs>
+              <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gaugeGrad)" stroke-width="16" stroke-linecap="round"/>
+              <line id="gaugeNeedle" x1="100" y1="100" x2="100" y2="30" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="transform-origin:100px 100px;transition:transform 1s ease"/>
+              <circle cx="100" cy="100" r="6" fill="currentColor"/>
+            </svg>
+            <div class="bmi-value-display">
+              <div class="bmi-number" id="bmiNumber">—</div>
+              <div class="bmi-category" id="bmiCategory">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Recommendations -->
+        <div class="result-content" id="bmiAIContent" style="display:none">
+          <div class="result-header">
+            <div class="result-title"><i class="bi bi-lightbulb-fill text-warning"></i> AI Recommendations</div>
+            <button class="btn btn-sm btn-outline-info" id="downloadBmiBtn" title="Download Report"><i class="bi bi-download"></i> Download</button>
+          </div>
+          <div class="result-body" id="bmiRecsBody"></div>
+          <div class="result-footer"><span class="powered-tag">🧠 IBM Granite AI</span></div>
+        </div>
+
+        <div class="loading-state" id="bmiLoading" style="display:none">
+          <div class="loading-animation">
+            <div class="loading-dumbbell">🧠</div>
+            <div class="loading-text">
+              <h3>Analyzing your BMI...</h3>
+              <p>IBM Granite is generating personalized recommendations</p>
+            </div>
+            <div class="loading-bar"><div class="loading-fill"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById("bmiForm").addEventListener("submit", async(e)=>{
+  e.preventDefault();
+  const height = parseFloat(document.getElementById("bmiHeight").value);
+  const weight = parseFloat(document.getElementById("bmiWeight").value);
+  if(!height || !weight){ alert("Please enter height and weight."); return; }
+
+  document.getElementById("bmiPlaceholder").style.display = "none";
+  document.getElementById("bmiResultCard").style.display  = "block";
+  document.getElementById("bmiAIContent").style.display   = "none";
+  document.getElementById("bmiLoading").style.display     = "flex";
+
+  try{
+    const res  = await fetch("/api/bmi/calculate",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        height: height, weight: weight,
+        age:    parseInt(document.getElementById("bmiAge").value),
+        gender: document.getElementById("bmiGender").value,
+        goal:   document.getElementById("bmiGoal").value
+      })
+    });
+    const data = await res.json();
+
+    // Update BMI display
+    document.getElementById("bmiNumber").textContent   = data.bmi;
+    document.getElementById("bmiCategory").textContent = data.category;
+    document.getElementById("bmiCategory").style.color = data.color;
+
+    // Rotate needle (BMI 10-40 mapped to -90 to 90 degrees)
+    const bmi = data.bmi;
+    const angle = Math.min(Math.max(((bmi - 15) / 25) * 180 - 90, -90), 90);
+    document.getElementById("gaugeNeedle").style.transform = `rotate(${angle}deg)`;
+
+    // Show AI recs
+    document.getElementById("bmiLoading").style.display   = "none";
+    document.getElementById("bmiAIContent").style.display = "block";
+    document.getElementById("bmiRecsBody").innerHTML = typeof marked !== "undefined"
+      ? marked.parse(data.recommendations)
+      : data.recommendations.replace(/\n/g,"<br>");
+  } catch(err){
+    document.getElementById("bmiLoading").style.display   = "none";
+    document.getElementById("bmiAIContent").style.display = "block";
+    document.getElementById("bmiRecsBody").innerHTML = "<p class='text-danger'>⚠️ Error calculating BMI. Try again.</p>";
+  }
+});
+
+// ── Download BMI Report ──
+document.getElementById("downloadBmiBtn").addEventListener("click",()=>{
+  const recs    = document.getElementById("bmiRecsBody").innerText;
+  const bmi     = document.getElementById("bmiNumber").textContent;
+  const cat     = document.getElementById("bmiCategory").textContent;
+  const height  = document.getElementById("bmiHeight").value;
+  const weight  = document.getElementById("bmiWeight").value;
+  const age     = document.getElementById("bmiAge").value;
+  if(!recs.trim()){ showToast("Calculate BMI first!","info"); return; }
+  const date   = new Date().toLocaleDateString("en-GB").replace(/\//g,"-");
+  const header = `FITNESS BRO — BMI REPORT\nGenerated: ${new Date().toLocaleString()}\n${"=".repeat(50)}\n\nBMI RESULT\n----------\nBMI Score : ${bmi}\nCategory  : ${cat}\nHeight    : ${height} cm\nWeight    : ${weight} kg\nAge       : ${age}\n\n${"=".repeat(50)}\n\nAI RECOMMENDATIONS\n------------------\n\n`;
+  downloadTxt(header + recs, `bmi-report-${date}.txt`);
+  showToast("BMI report downloaded! 📊","success");
+});
+</script>
+{% endblock %}
