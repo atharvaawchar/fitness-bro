@@ -411,7 +411,9 @@ def get_streak(user_id: int) -> int:
 
 # ─────────────────────────────────────────────
 #  Frontend Routes
-# ─────────────────────────────────────────────
+# ─
+init_db()
+init_watsonx()
 @app.route("/")
 def landing():
     return render_template("landing.html")
@@ -780,7 +782,6 @@ def api_health():
 #  App Entry Point
 # ─────────────────────────────────────────────
 if __name__ == "__main__":
-    init_db()
-    init_watsonx()
+    
     print("🏋️  Fitness Bro starting on http://localhost:5000")
     app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", port=5000, host="0.0.0.0")
